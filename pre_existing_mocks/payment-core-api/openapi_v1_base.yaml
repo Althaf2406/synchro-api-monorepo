@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Payment Core API
+  version: 1.0.0
+  description: Core upstream payment processing service for charging customers and settling ledgers.
+paths:
+  /v2/charges:
+    post:
+      summary: Create a customer charge transaction
+      operationId: createCharge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChargeRequest"
+      responses:
+        "200":
+          description: Charge processed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChargeResponse"
+components:
+  schemas:
+    ChargeRequest:
+      type: object
+      required:
+        - customer_id
+        - amount_cents
+      properties:
+        customer_id:
+          type: string
+          description: Unique identifier for the customer
+        amount_cents:
+          type: integer
+          description: Flat charge amount in US cents
+    ChargeResponse:
+      type: object
+      required:
+        - transaction_id
+        - status
+        - net_amount_cents
+      properties:
+        transaction_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - CHARGED
+            - FAILED
+            - PENDING
+        net_amount_cents:
+          type: integer

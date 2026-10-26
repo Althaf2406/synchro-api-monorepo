@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: Payment Core API
+  version: 2.0.0
+  description: Core upstream payment processing service (PR #42 - Compound Breaking Changes).
+paths:
+  /v2/charges:
+    post:
+      summary: Create a customer charge transaction with nested monetary value and mandatory idempotency
+      operationId: createCharge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChargeRequest"
+      responses:
+        "200":
+          description: Charge settled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChargeResponse"
+components:
+  schemas:
+    MonetaryValue:
+      type: object
+      required:
+        - amount_minor
+        - currency_iso
+      properties:
+        amount_minor:
+          type: integer
+          description: Amount in minor currency units (e.g., cents)
+        currency_iso:
+          type: string
+          default: USD
+          description: 3-letter ISO-4217 currency code
+    ChargeRequest:
+      type: object
+      required:
+        - customer_id
+        - monetary_value
+        - idempotency_key
+      properties:
+        customer_id:
+          type: string
+          description: Unique identifier for the customer
+        monetary_value:
+          $ref: "#/components/schemas/MonetaryValue"
+        idempotency_key:
+          type: string
+          description: Mandatory deterministic idempotency token for audit safety
+    ChargeResponse:
+      type: object
+      required:
+        - transaction_id
+        - status
+        - monetary_value
+      properties:
+        transaction_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - SETTLED
+            - FAILED
+            - PENDING
+        monetary_value:
+          $ref: "#/components/schemas/MonetaryValue"
