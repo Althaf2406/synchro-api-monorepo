@@ -13,7 +13,7 @@ from rich.table import Table
 from rich.tree import Tree
 
 
-console = Console()
+console = Console(width=140, force_terminal=True)
 
 
 def render_synchro_banner(upstream_repo: str, pr_number: int) -> None:
